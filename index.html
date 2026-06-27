@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OPE Test Pro - Acceso privado</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --card: rgba(255,255,255,.08);
+      --card2: rgba(255,255,255,.12);
+      --text: #f8fafc;
+      --muted: #aab4c7;
+      --primary: #7c3aed;
+      --primary2: #06b6d4;
+      --good: #16a34a;
+      --bad: #dc2626;
+      --warn: #f59e0b;
+      --border: rgba(255,255,255,.16);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(124,58,237,.35), transparent 35%),
+        radial-gradient(circle at top right, rgba(6,182,212,.28), transparent 30%),
+        linear-gradient(135deg, #050816, #101827 60%, #020617);
+    }
+
+    .watermark {
+      position: fixed;
+      right: 14px;
+      bottom: 12px;
+      opacity: .22;
+      font-size: 12px;
+      z-index: 1;
+      pointer-events: none;
+      max-width: 70vw;
+      word-break: break-word;
+    }
+
+    .container {
+      width: min(1100px, calc(100% - 28px));
+      margin: 0 auto;
+      padding: 28px 0 50px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .hero {
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      align-items: center;
+      margin-bottom: 22px;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: clamp(26px, 4vw, 46px);
+      letter-spacing: -0.04em;
+    }
+
+    .brand p {
+      color: var(--muted);
+      margin: 8px 0 0;
+      font-size: 16px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid var(--border);
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.08);
+      color: #e0f2fe;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .card {
+      background: linear-gradient(180deg, var(--card2), var(--card));
+      border: 1px solid var(--border);
+      box-shadow: 0 24px 80px rgba(0,0,0,.35);
+      backdrop-filter: blur(18px);
+      border-radius: 26px;
+      padding: 24px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 16px;
+    }
+
+    .col-12 { grid-column: span 12; }
+    .col-6 { grid-column: span 6; }
+    .col-4 { grid-column: span 4; }
+    .col-3 { grid-column: span 3; }
+
+    label {
+      display: block;
+      margin-bottom: 7px;
+      color: #dbeafe;
+      font-size: 13px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+
+    input, select {
+      width: 100%;
+      border: 1px solid var(--border);
+      color: var(--text);
+      background: rgba(15,23,42,.78);
+      padding: 13px 14px;
+      border-radius: 15px;
+      outline: none;
+      font-size: 16px;
+    }
+
+    input:focus, select:focus {
+      border-color: rgba(6,182,212,.7);
+      box-shadow: 0 0 0 4px rgba(6,182,212,.14);
+    }
+
+    button {
+      border: 0;
+      border-radius: 16px;
+      padding: 13px 18px;
+      color: white;
+      font-size: 16px;
+      font-weight: 900;
+      cursor: pointer;
+      background: linear-gradient(135deg, var(--primary), var(--primary2));
+      box-shadow: 0 12px 30px rgba(37,99,235,.22);
+      transition: transform .12s ease, opacity .12s ease;
+    }
+
+    button:hover { transform: translateY(-1px); }
+    button:disabled { opacity: .55; cursor: not-allowed; transform: none; }
+
+    .btn-secondary { background: rgba(255,255,255,.12); border: 1px solid var(--border); }
+    .btn-danger { background: linear-gradient(135deg, #b91c1c, #f97316); }
+    .btn-good { background: linear-gradient(135deg, #15803d, #22c55e); }
+
+    .row-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin-top: 16px;
+    }
+
+    .hidden { display: none !important; }
+
+    .msg {
+      margin-top: 14px;
+      padding: 13px 14px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      color: #e5e7eb;
+      background: rgba(255,255,255,.08);
+    }
+
+    .msg.good { border-color: rgba(34,197,94,.4); background: rgba(34,197,94,.12); }
+    .msg.bad { border-color: rgba(239,68,68,.4); background: rgba(239,68,68,.12); }
+    .msg.warn { border-color: rgba(245,158,11,.45); background: rgba(245,158,11,.12); }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin: 16px 0;
+    }
+
+    .stat {
+      background: rgba(255,255,255,.08);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 12px;
+    }
+
+    .stat strong { display: block; font-size: 22px; }
+    .stat span { color: var(--muted); font-size: 13px; }
+
+    .question-title {
+      color: var(--muted);
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .question-text {
+      font-size: clamp(20px, 2.6vw, 30px);
+      line-height: 1.25;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      margin: 0 0 18px;
+    }
+
+    .answers {
+      display: grid;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .answer {
+      width: 100%;
+      text-align: left;
+      background: rgba(15,23,42,.76);
+      border: 1px solid var(--border);
+      box-shadow: none;
+      display: grid;
+      grid-template-columns: 42px 1fr;
+      gap: 10px;
+      align-items: start;
+      line-height: 1.35;
+    }
+
+    .letter {
+      width: 34px;
+      height: 34px;
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      border-radius: 11px;
+      background: rgba(255,255,255,.12);
+      font-weight: 1000;
+    }
+
+    .answer.correct {
+      background: rgba(22,163,74,.22);
+      border-color: rgba(34,197,94,.85);
+    }
+
+    .answer.wrong {
+      background: rgba(220,38,38,.22);
+      border-color: rgba(248,113,113,.85);
+    }
+
+    .feedback {
+      margin-top: 16px;
+      font-size: 17px;
+      font-weight: 800;
+    }
+
+    .progressbar {
+      height: 10px;
+      background: rgba(255,255,255,.10);
+      border-radius: 999px;
+      overflow: hidden;
+      margin: 16px 0 20px;
+    }
+
+    .progressbar > div {
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, var(--primary), var(--primary2));
+      transition: width .25s ease;
+    }
+
+    .footer-note {
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 16px;
+    }
+
+    .confetti-piece {
+      position: fixed;
+      top: -20px;
+      width: 10px;
+      height: 16px;
+      opacity: .95;
+      z-index: 9999;
+      animation: fall linear forwards;
+    }
+
+    @keyframes fall {
+      to { transform: translateY(110vh) rotate(780deg); }
+    }
+
+
+    .result-mood {
+      margin: 10px 0 18px;
+      padding: 16px 18px;
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.08);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .result-mood.good { background: rgba(22,163,74,.14); border-color: rgba(34,197,94,.5); }
+    .result-mood.warn { background: rgba(245,158,11,.12); border-color: rgba(245,158,11,.45); }
+    .result-mood.bad { background: rgba(220,38,38,.12); border-color: rgba(248,113,113,.45); }
+
+    .mood-emoji {
+      font-size: clamp(34px, 7vw, 56px);
+      line-height: 1;
+      filter: drop-shadow(0 8px 20px rgba(0,0,0,.22));
+    }
+
+    .mood-copy strong {
+      display: block;
+      font-size: 18px;
+      margin-bottom: 4px;
+    }
+
+    .mood-copy small {
+      display: block;
+      color: #cbd5e1;
+      margin-top: 6px;
+      font-weight: 800;
+    }
+
+    .emoji-burst {
+      position: fixed;
+      z-index: 9999;
+      top: -5vh;
+      font-size: 28px;
+      animation: fallEmoji linear forwards;
+      pointer-events: none;
+      filter: drop-shadow(0 8px 14px rgba(0,0,0,.25));
+    }
+
+    @keyframes fallEmoji {
+      to { transform: translateY(110vh) rotate(35deg); opacity: .1; }
+    }
+
+    @media (max-width: 760px) {
+      .hero { flex-direction: column; align-items: flex-start; }
+      .col-6, .col-4, .col-3 { grid-column: span 12; }
+      .stats { grid-template-columns: repeat(2, 1fr); }
+      .card { padding: 18px; border-radius: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="watermark" id="watermark"></div>
+
+  <main class="container">
+    <section class="hero">
+      <div class="brand">
+        <h1>OPE Test Pro</h1>
+        <p>Plataforma privada de test con acceso por usuario y caducidad.</p>
+      </div>
+      <div class="pill">🔐 Acceso privado</div>
+    </section>
+
+    <section id="loginView" class="card">
+      <h2>Entrar a la plataforma</h2>
+      <p class="footer-note">Introduce el email y la contraseña que te han facilitado.</p>
+      <div class="grid">
+        <div class="col-6">
+          <label>Email</label>
+          <input id="email" type="email" placeholder="usuario@email.com" autocomplete="email" />
+        </div>
+        <div class="col-6">
+          <label>Contraseña</label>
+          <input id="password" type="password" placeholder="••••••••" autocomplete="current-password" />
+        </div>
+      </div>
+      <div class="row-actions">
+        <button id="loginBtn">Entrar</button>
+      </div>
+      <div id="loginMsg" class="msg hidden"></div>
+    </section>
+
+    <section id="appView" class="hidden">
+      <div class="topbar">
+        <div>
+          <strong id="userEmail"></strong>
+          <div class="footer-note" id="accessInfo"></div>
+        </div>
+        <button class="btn-secondary" id="logoutBtn">Salir</button>
+      </div>
+
+      <section id="configView" class="card">
+        <h2>Configurar test</h2>
+        <div class="grid">
+          <div class="col-6">
+            <label>Banco de preguntas</label>
+            <select id="bankSelect"></select>
+          </div>
+          <div class="col-6">
+            <label>Orden</label>
+            <select id="orderMode">
+              <option value="random">Aleatorio</option>
+              <option value="series">En serie</option>
+            </select>
+          </div>
+          <div class="col-4">
+            <label>Tipo de selección</label>
+            <select id="selectionMode">
+              <option value="all">Todas</option>
+              <option value="count">Número de preguntas</option>
+              <option value="range">Rango de preguntas</option>
+            </select>
+          </div>
+          <div class="col-4" id="countBox">
+            <label>Número</label>
+            <input id="questionCount" type="number" min="1" value="25" />
+          </div>
+          <div class="col-4" id="rangeStartBox">
+            <label>Desde pregunta</label>
+            <input id="rangeStart" type="number" min="1" value="1" />
+          </div>
+          <div class="col-4" id="rangeEndBox">
+            <label>Hasta pregunta</label>
+            <input id="rangeEnd" type="number" min="1" value="50" />
+          </div>
+        </div>
+
+        <div class="row-actions">
+          <button id="startBtn">Empezar test</button>
+          <button class="btn-secondary" id="loadWrongsBtn">Batería de falladas acumuladas</button>
+        </div>
+        <div id="configMsg" class="msg hidden"></div>
+      </section>
+
+      <section id="quizView" class="card hidden">
+        <div class="topbar">
+          <button class="btn-secondary" id="backConfigBtn">← Configuración</button>
+          <div class="pill" id="quizCounter"></div>
+        </div>
+        <div class="progressbar"><div id="progressFill"></div></div>
+        <div class="question-title" id="questionMeta"></div>
+        <h2 class="question-text" id="questionText"></h2>
+        <div class="answers" id="answersBox"></div>
+        <div id="feedback" class="feedback hidden"></div>
+        <div class="row-actions">
+          <button id="nextBtn" class="hidden">Siguiente</button>
+        </div>
+      </section>
+
+      <section id="resultView" class="card hidden">
+        <h2 id="resultTitle"></h2>
+        <div id="resultMood" class="result-mood"></div>
+        <div class="stats">
+          <div class="stat"><strong id="totalStat">0</strong><span>Preguntas</span></div>
+          <div class="stat"><strong id="okStat">0</strong><span>Aciertos</span></div>
+          <div class="stat"><strong id="badStat">0</strong><span>Fallos</span></div>
+          <div class="stat"><strong id="scoreStat">0%</strong><span>Resultado</span></div>
+        </div>
+        <div id="finalMessage" class="msg good"></div>
+        <div class="row-actions">
+          <button id="againRandomBtn">Repetir aleatorio</button>
+          <button class="btn-secondary" id="againSeriesBtn">Repetir en serie</button>
+          <button class="btn-danger" id="retryWrongsBtn">Batería de falladas del test</button>
+          <button class="btn-secondary" id="newConfigBtn">Nueva configuración</button>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script>
+    /********************************************************************
+     * CONFIGURACIÓN SUPABASE
+     * 1) Crea un proyecto en Supabase.
+     * 2) Copia Project URL y anon public key.
+     * 3) Nunca pongas aquí la service_role key.
+     ********************************************************************/
+    const SUPABASE_URL = "https://yhmhbzsekbzqubkwnzqu.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_LzWepR16ZLRP0jgd6S3DBQ_of4LGxoq";
+
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    let currentUser = null;
+    let currentAccess = null;
+    let availableBanks = [];
+    let allLoadedQuestions = [];
+    let quizQuestions = [];
+    let wrongQuestions = [];
+    let currentIndex = 0;
+    let answered = false;
+    let correctCount = 0;
+    let lastConfig = null;
+    let celebrationNodes = [];
+
+    const $ = (id) => document.getElementById(id);
+
+    function show(el) { el.classList.remove("hidden"); }
+    function hide(el) { el.classList.add("hidden"); }
+
+    function setMsg(id, text, type = "warn") {
+      const el = $(id);
+      el.textContent = text;
+      el.className = `msg ${type}`;
+      show(el);
+    }
+
+    function clearMsg(id) {
+      const el = $(id);
+      el.textContent = "";
+      hide(el);
+    }
+
+    function clearCelebrationEffects() {
+      celebrationNodes.forEach(node => node.remove());
+      celebrationNodes = [];
+    }
+
+    function shuffle(arr) {
+      const copy = [...arr];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    function formatDate(iso) {
+      if (!iso) return "sin fecha";
+      return new Date(iso).toLocaleDateString("es-ES", { year: "numeric", month: "2-digit", day: "2-digit" });
+    }
+
+    function isAccessActive(access) {
+      if (!access || !access.active || !access.expires_at) return false;
+      return new Date(access.expires_at).getTime() > Date.now();
+    }
+
+    async function init() {
+      if (SUPABASE_URL.includes("PON_AQUI") || SUPABASE_ANON_KEY.includes("PON_AQUI")) {
+        setMsg("loginMsg", "Falta configurar SUPABASE_URL y SUPABASE_ANON_KEY en index.html.", "bad");
+        return;
+      }
+
+      const { data } = await supabaseClient.auth.getSession();
+      if (data.session?.user) {
+        await enterApp(data.session.user);
+      }
+    }
+
+    async function login() {
+      clearMsg("loginMsg");
+      const email = $("email").value.trim();
+      const password = $("password").value;
+
+      if (!email || !password) {
+        setMsg("loginMsg", "Introduce email y contraseña.", "warn");
+        return;
+      }
+
+      $("loginBtn").disabled = true;
+      $("loginBtn").textContent = "Entrando...";
+
+      const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+
+      $("loginBtn").disabled = false;
+      $("loginBtn").textContent = "Entrar";
+
+      if (error) {
+        setMsg("loginMsg", "No se ha podido entrar. Revisa email y contraseña.", "bad");
+        return;
+      }
+
+      await enterApp(data.user);
+    }
+
+    async function enterApp(user) {
+      currentUser = user;
+      $("userEmail").textContent = user.email;
+      $("watermark").textContent = `Usuario: ${user.email}`;
+
+      const ok = await loadAccess();
+      if (!ok) {
+        await supabaseClient.auth.signOut();
+        return;
+      }
+
+      hide($("loginView"));
+      show($("appView"));
+      await loadBanks();
+    }
+
+    async function loadAccess() {
+      const { data, error } = await supabaseClient
+        .from("user_access")
+        .select("user_id,email,access_level,active,expires_at")
+        .eq("user_id", currentUser.id)
+        .single();
+
+      if (error || !data) {
+        setMsg("loginMsg", "Tu usuario existe, pero todavía no tiene acceso asignado.", "bad");
+        return false;
+      }
+
+      if (!isAccessActive(data)) {
+        setMsg("loginMsg", "Tu acceso está caducado o desactivado.", "bad");
+        return false;
+      }
+
+      currentAccess = data;
+      $("accessInfo").textContent = `Plan: ${data.access_level} · Activo hasta: ${formatDate(data.expires_at)}`;
+      return true;
+    }
+
+    async function loadBanks() {
+      clearMsg("configMsg");
+      const { data, error } = await supabaseClient
+        .from("question_banks")
+        .select("code,name,sort_order")
+        .order("sort_order", { ascending: true });
+
+      if (error) {
+        setMsg("configMsg", "No se han podido cargar los bancos de preguntas.", "bad");
+        return;
+      }
+
+      availableBanks = data || [];
+      const select = $("bankSelect");
+      select.innerHTML = "";
+
+      availableBanks.forEach(bank => {
+        const opt = document.createElement("option");
+        opt.value = bank.code;
+        opt.textContent = bank.name;
+        select.appendChild(opt);
+      });
+
+      if (!availableBanks.length) {
+        setMsg("configMsg", "No tienes bancos de preguntas disponibles para tu plan.", "warn");
+      }
+    }
+
+    async function loadQuestions(bankCode) {
+      const { data, error } = await supabaseClient
+        .from("questions")
+        .select("id,bank_code,question_number,question,option_a,option_b,option_c,option_d,correct_answer,explanation,review_note")
+        .eq("bank_code", bankCode)
+        .order("question_number", { ascending: true });
+
+      if (error) throw error;
+      return data || [];
+    }
+
+    function updateConfigVisibility() {
+      const mode = $("selectionMode").value;
+      $("countBox").classList.toggle("hidden", mode !== "count");
+      $("rangeStartBox").classList.toggle("hidden", mode !== "range");
+      $("rangeEndBox").classList.toggle("hidden", mode !== "range");
+    }
+
+    async function startQuiz(configOverride = null) {
+      clearMsg("configMsg");
+      try {
+        const config = configOverride || {
+          bankCode: $("bankSelect").value,
+          orderMode: $("orderMode").value,
+          selectionMode: $("selectionMode").value,
+          count: parseInt($("questionCount").value || "0", 10),
+          rangeStart: parseInt($("rangeStart").value || "1", 10),
+          rangeEnd: parseInt($("rangeEnd").value || "1", 10),
+          source: "normal"
+        };
+
+        lastConfig = { ...config };
+
+        $("startBtn").disabled = true;
+        $("startBtn").textContent = "Cargando...";
+
+        let baseQuestions = [];
+
+        if (config.source === "wrong-session") {
+          baseQuestions = [...wrongQuestions];
+        } else if (config.source === "wrong-db") {
+          baseQuestions = await loadWrongQuestionsFromDb();
+        } else {
+          allLoadedQuestions = await loadQuestions(config.bankCode);
+          baseQuestions = [...allLoadedQuestions];
+        }
+
+        if (config.selectionMode === "range") {
+          const start = Math.min(config.rangeStart, config.rangeEnd);
+          const end = Math.max(config.rangeStart, config.rangeEnd);
+          baseQuestions = baseQuestions.filter(q => q.question_number >= start && q.question_number <= end);
+        }
+
+        if (config.orderMode === "random") {
+          baseQuestions = shuffle(baseQuestions);
+        } else {
+          baseQuestions.sort((a, b) => a.question_number - b.question_number);
+        }
+
+        if (config.selectionMode === "count") {
+          baseQuestions = baseQuestions.slice(0, Math.max(1, config.count));
+        }
+
+        if (!baseQuestions.length) {
+          const msg = config.source === "wrong-db" ? "No tienes falladas acumuladas para repasar. Primeran!" : config.source === "wrong-session" ? "No hay falladas en este test actual. Zorionak!" : "No hay preguntas para esa configuración.";
+          setMsg("configMsg", msg, config.source ? "good" : "warn");
+          return;
+        }
+
+        quizQuestions = baseQuestions;
+        wrongQuestions = [];
+        clearCelebrationEffects();
+        currentIndex = 0;
+        correctCount = 0;
+        answered = false;
+
+        hide($("configView"));
+        hide($("resultView"));
+        show($("quizView"));
+        renderQuestion();
+      } catch (err) {
+        setMsg("configMsg", "Error cargando preguntas. Revisa Supabase y las políticas RLS.", "bad");
+        console.error(err);
+      } finally {
+        $("startBtn").disabled = false;
+        $("startBtn").textContent = "Empezar test";
+      }
+    }
+
+    function renderQuestion() {
+      answered = false;
+      const q = quizQuestions[currentIndex];
+      const total = quizQuestions.length;
+      const num = currentIndex + 1;
+
+      $("quizCounter").textContent = `${num}/${total}`;
+      $("progressFill").style.width = `${(currentIndex / total) * 100}%`;
+      $("questionMeta").textContent = `Pregunta ${q.question_number} · ${getBankName(q.bank_code)}`;
+      $("questionText").textContent = q.question;
+      hide($("feedback"));
+      hide($("nextBtn"));
+
+      const answers = [
+        ["A", q.option_a],
+        ["B", q.option_b],
+        ["C", q.option_c],
+        ["D", q.option_d]
+      ];
+
+      const box = $("answersBox");
+      box.innerHTML = "";
+      answers.forEach(([letter, text]) => {
+        const btn = document.createElement("button");
+        btn.className = "answer";
+        btn.innerHTML = `<span class="letter">${letter}</span><span>${escapeHtml(text || "")}</span>`;
+        btn.addEventListener("click", () => chooseAnswer(letter, btn));
+        box.appendChild(btn);
+      });
+    }
+
+    async function chooseAnswer(letter) {
+      if (answered) return;
+      answered = true;
+
+      const q = quizQuestions[currentIndex];
+      const correct = String(q.correct_answer || "").toUpperCase();
+      const isCorrect = letter === correct;
+      if (isCorrect) correctCount++;
+      else wrongQuestions.push(q);
+
+      const buttons = [...document.querySelectorAll(".answer")];
+      buttons.forEach(btn => {
+        const btnLetter = btn.querySelector(".letter").textContent;
+        if (btnLetter === correct) btn.classList.add("correct");
+        if (btnLetter === letter && !isCorrect) btn.classList.add("wrong");
+        btn.disabled = true;
+      });
+
+      const feedback = $("feedback");
+      if (isCorrect) {
+        feedback.textContent = "✅ Correcto. ¡Vamos!";
+        feedback.style.color = "#86efac";
+      } else {
+        const correctText = q[`option_${correct.toLowerCase()}`] || "";
+        feedback.innerHTML = `❌ Fallo. La correcta es <strong>${correct}) ${escapeHtml(correctText)}</strong>`;
+        feedback.style.color = "#fecaca";
+      }
+
+      if (q.explanation) {
+        feedback.innerHTML += `<br><span style="color:#cbd5e1;font-weight:600;">${escapeHtml(q.explanation)}</span>`;
+      }
+      if (q.review_note) {
+        feedback.innerHTML += `<br><span style="color:#fcd34d;font-weight:800;">⚠️ ${escapeHtml(q.review_note)}</span>`;
+      }
+
+      show(feedback);
+      show($("nextBtn"));
+      await saveProgress(q.id, isCorrect);
+    }
+
+    async function saveProgress(questionId, isCorrect) {
+      if (!currentUser) return;
+      const { error } = await supabaseClient
+        .from("progress")
+        .upsert({
+          user_id: currentUser.id,
+          question_id: questionId,
+          last_correct: isCorrect,
+          attempts_delta: 1,
+          updated_at: new Date().toISOString()
+        }, { onConflict: "user_id,question_id" });
+
+      if (error) {
+        console.warn("No se pudo guardar progreso", error);
+      }
+    }
+
+    async function loadWrongQuestionsFromDb() {
+      const { data, error } = await supabaseClient
+        .from("progress")
+        .select("question_id")
+        .eq("user_id", currentUser.id)
+        .eq("last_correct", false);
+
+      if (error) throw error;
+      const ids = (data || []).map(x => x.question_id);
+      if (!ids.length) return [];
+
+      const { data: qs, error: qError } = await supabaseClient
+        .from("questions")
+        .select("id,bank_code,question_number,question,option_a,option_b,option_c,option_d,correct_answer,explanation,review_note")
+        .in("id", ids)
+        .order("question_number", { ascending: true });
+
+      if (qError) throw qError;
+      return qs || [];
+    }
+
+    function nextQuestion() {
+      if (currentIndex < quizQuestions.length - 1) {
+        currentIndex++;
+        renderQuestion();
+      } else {
+        finishQuiz();
+      }
+    }
+
+    function finishQuiz() {
+      hide($("quizView"));
+      show($("resultView"));
+      const total = quizQuestions.length;
+      const bad = total - correctCount;
+      const score = Math.round((correctCount / total) * 100);
+      const meta = getResultMeta(score, bad, total);
+
+      $("progressFill").style.width = "100%";
+      $("totalStat").textContent = total;
+      $("okStat").textContent = correctCount;
+      $("badStat").textContent = bad;
+      $("scoreStat").textContent = `${score}%`;
+      $("resultTitle").textContent = meta.title;
+
+      const mood = $("resultMood");
+      mood.className = `result-mood ${meta.type}`;
+      mood.innerHTML = `<div class="mood-emoji">${meta.emoji}</div><div class="mood-copy"><strong>${meta.headline}</strong>${meta.sub}<small>${meta.eu}</small></div>`;
+
+      const finalMessage = $("finalMessage");
+      finalMessage.className = `msg ${meta.type}`;
+      finalMessage.innerHTML = `${meta.message}<br><strong>${bad ? `Orain bai: egin ${bad} galdera okerren bateria eta igo maila.` : "Akatsik ez! Eutsi goiari."}</strong>`;
+
+      $("retryWrongsBtn").textContent = bad ? `Batería de falladas del test (${bad})` : "Batería de falladas del test";
+      $("loadWrongsBtn").textContent = "Batería de falladas acumuladas";
+
+      clearCelebrationEffects();
+      if (score >= 85) launchConfetti("big");
+      else if (score >= 60) launchConfetti("soft");
+      else launchFiascoRain();
+    }
+
+    function getResultMeta(score, bad, total) {
+      if (score >= 90) {
+        return {
+          type: "good",
+          title: "Primeran! Resultado top",
+          emoji: "🥳🏆",
+          headline: "Eso ya huele a plaza.",
+          sub: "Has hecho un test muy serio. Ahora el valor está en pulir los últimos detalles.",
+          message: "Éxito total. Estás en una zona muy competitiva. Mantén el ritmo y remata las falladas como un cirujano.",
+          eu: "Primeran! Oso ondo egin duzu. Segi horrela!"
+        };
+      }
+      if (score >= 75) {
+        return {
+          type: "good",
+          title: "Muy buen nivel",
+          emoji: "😄✨",
+          headline: "Vas muy fuerte.",
+          sub: "Estás cerca de dominarlo del todo. Las falladas ahora son puro oro.",
+          message: "Gran trabajo. Estás en un punto muy bueno para consolidar con una batería de falladas y subir todavía más.",
+          eu: "Oso ondo! Bidean zoaz, segi lanean!"
+        };
+      }
+      if (score >= 60) {
+        return {
+          type: "warn",
+          title: "Buen avance",
+          emoji: "🙂📚",
+          headline: "Base sólida, toca apretar un poco más.",
+          sub: "Has hecho una parte bien y otra parte te está enseñando por dónde crecer.",
+          message: "Vas construyendo nivel. Si repites solo las falladas, vas a notar una subida rápida.",
+          eu: "Ondo zoaz. Pixkanaka-pixkanaka, gero eta hobeto!"
+        };
+      }
+      if (score >= 40) {
+        return {
+          type: "bad",
+          title: "Toca remontada",
+          emoji: "🫠😅",
+          headline: "No ha sido bonito... pero ha sido útil.",
+          sub: "Ahora ya sabes qué duele. Y eso, estudiando, vale muchísimo.",
+          message: "No pasa nada: este test te ha dibujado el mapa real de estudio. Ataca falladas y repite.",
+          eu: "Lasai! Hurrengoan hobeto egingo duzu."
+        };
+      }
+      return {
+        type: "bad",
+        title: "Fiasco con futuro",
+        emoji: "🤯🙈",
+        headline: "Bueno... elegante no ha sido 😅",
+        sub: "Pero oye, peor sería ir confiado y descubrirlo el día del examen.",
+        message: "Ha salido rebelde, sí. Pero mejor un batacazo ahora que el día importante. Respira, haz batería de falladas y vuelve al ataque.",
+        eu: "Ez etsi! Saiatu berriro; ziur hobetuko duzula."
+      };
+    }
+
+    function launchConfetti(mode = "big") {
+      const pieces = mode === "big" ? 170 : 90;
+      const colors = mode === "big"
+        ? ["#7c3aed", "#06b6d4", "#22c55e", "#f59e0b", "#ef4444", "#f8fafc"]
+        : ["#06b6d4", "#22c55e", "#f8fafc"];
+      for (let i = 0; i < pieces; i++) {
+        const piece = document.createElement("div");
+        piece.className = "confetti-piece";
+        piece.style.left = Math.random() * 100 + "vw";
+        piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+        piece.style.animationDuration = (mode === "big" ? 2.2 : 1.8) + Math.random() * 2.2 + "s";
+        piece.style.animationDelay = (Math.random() * .25) + "s";
+        piece.style.transform = `rotate(${Math.random() * 360}deg)`;
+        document.body.appendChild(piece);
+        celebrationNodes.push(piece);
+        setTimeout(() => piece.remove(), 5500);
+      }
+    }
+
+    function launchFiascoRain() {
+      const emojis = ["🫠", "🤯", "🙈", "😵", "📚", "🫣"];
+      for (let i = 0; i < 36; i++) {
+        const node = document.createElement("div");
+        node.className = "emoji-burst";
+        node.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+        node.style.left = Math.random() * 100 + "vw";
+        node.style.animationDuration = (2.8 + Math.random() * 2.2) + "s";
+        node.style.animationDelay = (Math.random() * .35) + "s";
+        document.body.appendChild(node);
+        celebrationNodes.push(node);
+        setTimeout(() => node.remove(), 6200);
+      }
+    }
+
+    function getBankName(code) {
+      return availableBanks.find(b => b.code === code)?.name || code;
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    async function logout() {
+      await supabaseClient.auth.signOut();
+      currentUser = null;
+      currentAccess = null;
+      $("watermark").textContent = "";
+      hide($("appView"));
+      show($("loginView"));
+      $("password").value = "";
+    }
+
+    $("loginBtn").addEventListener("click", login);
+    $("password").addEventListener("keydown", (e) => { if (e.key === "Enter") login(); });
+    $("logoutBtn").addEventListener("click", logout);
+    $("selectionMode").addEventListener("change", updateConfigVisibility);
+    $("startBtn").addEventListener("click", () => startQuiz());
+    $("nextBtn").addEventListener("click", nextQuestion);
+    $("backConfigBtn").addEventListener("click", () => { hide($("quizView")); show($("configView")); });
+    $("newConfigBtn").addEventListener("click", () => { hide($("resultView")); show($("configView")); });
+
+    $("againRandomBtn").addEventListener("click", () => {
+      if (!lastConfig) return;
+      startQuiz({ ...lastConfig, orderMode: "random" });
+    });
+
+    $("againSeriesBtn").addEventListener("click", () => {
+      if (!lastConfig) return;
+      startQuiz({ ...lastConfig, orderMode: "series" });
+    });
+
+    $("retryWrongsBtn").addEventListener("click", () => {
+      if (!wrongQuestions.length) {
+        hide($("resultView"));
+        show($("configView"));
+        setMsg("configMsg", "No tienes falladas en este test. Buen trabajo.", "good");
+        return;
+      }
+      startQuiz({ ...lastConfig, source: "wrong-session", orderMode: "random", selectionMode: "all" });
+    });
+
+    $("loadWrongsBtn").addEventListener("click", () => {
+      startQuiz({
+        bankCode: $("bankSelect").value,
+        orderMode: "random",
+        selectionMode: "all",
+        source: "wrong-db"
+      });
+    });
+
+    updateConfigVisibility();
+    init();
+  </script>
+</body>
+</html>
