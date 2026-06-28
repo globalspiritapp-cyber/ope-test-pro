@@ -367,13 +367,11 @@
     <section id="loginView" class="card">
       <h2>Entrar a la plataforma</h2>
       <p class="footer-note">Introduce el email y la contraseña que te han facilitado.</p>
-      <p class="footer-note">
-  ¿Has visto una pregunta mal, una respuesta incorrecta o algún fallo?
-  Escríbenos a 
-  <a href="mailto:Globalspirit@gmail.com" style="color:#67e8f9;font-weight:900;">
-    Globalspirit@gmail.com
-  </a>
-</p>
+
+      <div class="msg good" style="margin-bottom:16px;">
+        <strong>¿Quieres probar antes?</strong><br>
+        Haz una demo gratuita de 5 preguntas. Si te gusta, solicita acceso completo a las 500 preguntas.
+      </div>
       <div class="grid">
         <div class="col-6">
           <label>Email</label>
@@ -386,6 +384,11 @@
       </div>
       <div class="row-actions">
         <button id="loginBtn">Entrar</button>
+        <button class="btn-secondary" id="demoBtn">Probar demo gratis</button>
+        <a href="mailto:Globalspirit@gmail.com?subject=Acceso%20OPE%20Test%20Pro"
+           style="color:#67e8f9;font-weight:900;text-decoration:none;">
+          Solicitar acceso completo
+        </a>
       </div>
       <div id="loginMsg" class="msg hidden"></div>
     </section>
@@ -401,6 +404,10 @@
 
       <section id="configView" class="card">
         <h2>Configurar test</h2>
+        <p class="footer-note">
+          Para reportar fallos, preguntas dudosas o errores:
+          <a href="mailto:Globalspirit@gmail.com" style="color:#67e8f9;font-weight:900;">Globalspirit@gmail.com</a>
+        </p>
         <div class="grid">
           <div class="col-6">
             <label>Banco de preguntas</label>
@@ -471,6 +478,7 @@
           <button id="againRandomBtn">Repetir aleatorio</button>
           <button class="btn-secondary" id="againSeriesBtn">Repetir en serie</button>
           <button class="btn-danger" id="retryWrongsBtn">Batería de falladas del test</button>
+          <button class="btn-good hidden" id="buyAccessBtn">Solicitar acceso completo</button>
           <button class="btn-secondary" id="newConfigBtn">Nueva configuración</button>
         </div>
       </section>
@@ -500,6 +508,70 @@
     let correctCount = 0;
     let lastConfig = null;
     let celebrationNodes = [];
+    let isDemoMode = false;
+
+    const DEMO_QUESTIONS = [
+      {
+        id: "demo-1",
+        bank_code: "mantenimiento",
+        question_number: 1,
+        question: "Señala la respuesta que NO es correcta. En cuanto a la medición se refiere:",
+        option_a: "Al resultado de la operación de determinar de forma numérica el valor de una magnitud se le llama medida.",
+        option_b: "La medida será más o menos exacta en función de la precisión y apreciación del elemento empleado.",
+        option_c: "Las condiciones ambientales en las que se realiza la medición no influyen en la medida.",
+        option_d: "La medida será más o menos exacta en función de la destreza de la persona operaria.",
+        correct_answer: "C",
+        explanation: "Las condiciones ambientales sí pueden influir en la medición."
+      },
+      {
+        id: "demo-2",
+        bank_code: "mantenimiento",
+        question_number: 2,
+        question: "En cuanto a la medición, la apreciación depende de:",
+        option_a: "Del instrumento de medida.",
+        option_b: "De la destreza de la operaria.",
+        option_c: "De las condiciones ambientales.",
+        option_d: "Las otras tres respuestas son incorrectas.",
+        correct_answer: "A",
+        explanation: "La apreciación es la mínima variación que puede leerse en el instrumento."
+      },
+      {
+        id: "demo-3",
+        bank_code: "mantenimiento",
+        question_number: 15,
+        question: "¿A cuántos milímetros equivale una pulgada?",
+        option_a: "2,54 mm.",
+        option_b: "254,0 mm.",
+        option_c: "25,4 mm.",
+        option_d: "Las otras tres respuestas son incorrectas.",
+        correct_answer: "C",
+        explanation: "Una pulgada equivale a 25,4 mm."
+      },
+      {
+        id: "demo-4",
+        bank_code: "comun",
+        question_number: 1,
+        question: "De acuerdo con las normas generales de ordenación de las profesiones sanitarias, para poder ejercer una profesión sanitaria será requisito imprescindible:",
+        option_a: "La colegiación, cuando una ley estatal establezca esta obligación.",
+        option_b: "La inexistencia de inhabilitación o suspensión para el ejercicio profesional en los supuestos previstos.",
+        option_c: "Tener suscrito y vigente un seguro, aval u otra garantía financiera cuando proceda.",
+        option_d: "Todo lo anterior.",
+        correct_answer: "D",
+        explanation: "La respuesta correcta agrupa todos los requisitos indicados."
+      },
+      {
+        id: "demo-5",
+        bank_code: "comun",
+        question_number: 24,
+        question: "La cartera común de servicios del Sistema Nacional de Salud se articula en torno a:",
+        option_a: "Cartera común básica de servicios asistenciales, cartera común suplementaria y cartera común de servicios accesorios.",
+        option_b: "Cartera común básica nacional y cartera común autonómica.",
+        option_c: "Cartera común nacional básica, suplementaria autonómica y accesorios autonómicos.",
+        option_d: "Cartera común nacional y autonómica en todas sus modalidades.",
+        correct_answer: "A",
+        explanation: "La cartera común se divide en básica asistencial, suplementaria y servicios accesorios."
+      }
+    ];
 
     const $ = (id) => document.getElementById(id);
 
@@ -665,8 +737,46 @@
       $("rangeEndBox").classList.toggle("hidden", mode !== "range");
     }
 
+    function startDemo() {
+      clearMsg("loginMsg");
+      clearCelebrationEffects();
+
+      isDemoMode = true;
+      currentUser = null;
+      currentAccess = null;
+      availableBanks = [
+        { code: "mantenimiento", name: "Mantenimiento Mecánico" },
+        { code: "comun", name: "Temario Común" }
+      ];
+
+      quizQuestions = shuffle(DEMO_QUESTIONS);
+      wrongQuestions = [];
+      currentIndex = 0;
+      correctCount = 0;
+      answered = false;
+      lastConfig = { source: "demo", orderMode: "random", selectionMode: "all" };
+
+      $("userEmail").textContent = "Demo gratuita";
+      $("accessInfo").textContent = "5 preguntas de muestra · Para acceso completo, solicita tu usuario.";
+      $("watermark").textContent = "Demo gratuita · OPE Test Pro";
+
+      hide($("loginView"));
+      show($("appView"));
+      hide($("configView"));
+      hide($("resultView"));
+      show($("quizView"));
+
+      renderQuestion();
+    }
+
     async function startQuiz(configOverride = null) {
       clearMsg("configMsg");
+      isDemoMode = false;
+      $("againRandomBtn").classList.remove("hidden");
+      $("againSeriesBtn").classList.remove("hidden");
+      $("retryWrongsBtn").classList.remove("hidden");
+      $("buyAccessBtn").classList.add("hidden");
+      $("newConfigBtn").textContent = "Nueva configuración";
       try {
         const config = configOverride || {
           bankCode: $("bankSelect").value,
@@ -808,7 +918,7 @@
     }
 
     async function saveProgress(questionId, isCorrect) {
-      if (!currentUser) return;
+      if (isDemoMode || !currentUser) return;
       const { error } = await supabaseClient
         .from("progress")
         .upsert({
@@ -879,6 +989,27 @@
 
       $("retryWrongsBtn").textContent = bad ? `Batería de falladas del test (${bad})` : "Batería de falladas del test";
       $("loadWrongsBtn").textContent = "Batería de falladas acumuladas";
+
+      if (isDemoMode) {
+        $("resultTitle").textContent = score >= 60 ? "Demo completada" : "Demo completada";
+        finalMessage.className = "msg good";
+        finalMessage.innerHTML = `
+          Has terminado la demo gratuita de 5 preguntas.<br>
+          <strong>La versión completa incluye 500 preguntas, modo aleatorio, rangos, falladas acumuladas y acceso privado.</strong><br>
+          <span style="color:#cbd5e1;font-weight:800;">Proba egina! Orain, nahi baduzu, sarbide osoa eskatu.</span>
+        `;
+        $("againRandomBtn").classList.add("hidden");
+        $("againSeriesBtn").classList.add("hidden");
+        $("retryWrongsBtn").classList.add("hidden");
+        $("buyAccessBtn").classList.remove("hidden");
+        $("newConfigBtn").textContent = "Entrar con cuenta";
+      } else {
+        $("againRandomBtn").classList.remove("hidden");
+        $("againSeriesBtn").classList.remove("hidden");
+        $("retryWrongsBtn").classList.remove("hidden");
+        $("buyAccessBtn").classList.add("hidden");
+        $("newConfigBtn").textContent = "Nueva configuración";
+      }
 
       clearCelebrationEffects();
       if (score >= 85) launchConfetti("big");
@@ -977,6 +1108,8 @@
     }
 
     function getBankName(code) {
+      if (code === "mantenimiento") return "Mantenimiento Mecánico";
+      if (code === "comun") return "Temario Común";
       return availableBanks.find(b => b.code === code)?.name || code;
     }
 
@@ -990,6 +1123,8 @@
     }
 
     async function logout() {
+      isDemoMode = false;
+      clearCelebrationEffects();
       await supabaseClient.auth.signOut();
       currentUser = null;
       currentAccess = null;
@@ -1000,13 +1135,29 @@
     }
 
     $("loginBtn").addEventListener("click", login);
+    $("demoBtn").addEventListener("click", startDemo);
+    $("buyAccessBtn").addEventListener("click", () => {
+      window.location.href = "mailto:Globalspirit@gmail.com?subject=Acceso%20completo%20OPE%20Test%20Pro&body=Hola,%20quiero%20informaci%C3%B3n%20para%20activar%20el%20acceso%20completo%20a%20OPE%20Test%20Pro.";
+    });
     $("password").addEventListener("keydown", (e) => { if (e.key === "Enter") login(); });
     $("logoutBtn").addEventListener("click", logout);
     $("selectionMode").addEventListener("change", updateConfigVisibility);
     $("startBtn").addEventListener("click", () => startQuiz());
     $("nextBtn").addEventListener("click", nextQuestion);
     $("backConfigBtn").addEventListener("click", () => { hide($("quizView")); show($("configView")); });
-    $("newConfigBtn").addEventListener("click", () => { hide($("resultView")); show($("configView")); });
+    $("newConfigBtn").addEventListener("click", () => {
+      if (isDemoMode) {
+        isDemoMode = false;
+        clearCelebrationEffects();
+        hide($("appView"));
+        hide($("resultView"));
+        show($("loginView"));
+        $("watermark").textContent = "";
+        return;
+      }
+      hide($("resultView"));
+      show($("configView"));
+    });
 
     $("againRandomBtn").addEventListener("click", () => {
       if (!lastConfig) return;
