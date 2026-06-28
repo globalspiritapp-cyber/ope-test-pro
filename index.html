@@ -296,6 +296,109 @@
     }
 
 
+
+
+    .mode-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 14px 0 20px;
+    }
+
+    .mode-tab {
+      background: rgba(255,255,255,.10);
+      border: 1px solid var(--border);
+      box-shadow: none;
+    }
+
+    .mode-tab.active {
+      background: linear-gradient(135deg, var(--primary), var(--primary2));
+      border-color: rgba(255,255,255,.32);
+    }
+
+    .exam-box {
+      margin-top: 18px;
+      padding: 18px;
+      border-radius: 20px;
+      background: rgba(255,255,255,.07);
+      border: 1px solid var(--border);
+    }
+
+    .exam-review {
+      margin-top: 18px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .review-item {
+      padding: 14px;
+      border-radius: 16px;
+      border: 1px solid rgba(248,113,113,.35);
+      background: rgba(220,38,38,.12);
+    }
+
+    .review-item.correct-item {
+      border-color: rgba(34,197,94,.35);
+      background: rgba(22,163,74,.10);
+    }
+
+    .review-item strong {
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    .review-options {
+      display: grid;
+      gap: 5px;
+      margin-top: 8px;
+      color: #dbeafe;
+      font-size: 14px;
+      line-height: 1.35;
+    }
+
+    .review-ok {
+      color: #86efac;
+      font-weight: 900;
+    }
+
+    .review-bad {
+      color: #fecaca;
+      font-weight: 900;
+    }
+
+    .access-box {
+      margin: 16px 0;
+      padding: 18px;
+      border-radius: 20px;
+      border: 1px solid rgba(103,232,249,.35);
+      background: linear-gradient(135deg, rgba(6,182,212,.14), rgba(124,58,237,.12));
+    }
+
+    .access-box h3 {
+      margin: 0 0 8px;
+      font-size: 20px;
+    }
+
+    .access-box p {
+      margin: 7px 0;
+      color: #dbeafe;
+      line-height: 1.45;
+    }
+
+    .access-box a {
+      color: #67e8f9;
+      font-weight: 1000;
+      text-decoration: none;
+    }
+
+    .access-mini {
+      margin-top: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
     .result-mood {
       margin: 10px 0 18px;
       padding: 16px 18px;
@@ -372,6 +475,23 @@
         <strong>¿Quieres probar antes?</strong><br>
         Haz una demo gratuita de 5 preguntas. Si te gusta, solicita acceso completo a las 500 preguntas.
       </div>
+
+      <div class="access-box">
+        <h3>Acceso completo de pago</h3>
+        <p>La versión completa incluye <strong>500 preguntas</strong>, modo aleatorio, rangos, batería de falladas y acceso privado por usuario.</p>
+        <p>Para solicitar acceso, escríbenos a:</p>
+        <p>
+          <a href="mailto:Globalspirit@gmail.com?subject=Quiero%20acceso%20a%20OPE%20Test%20Pro&body=Hola,%20quiero%20informaci%C3%B3n%20para%20activar%20mi%20acceso%20a%20OPE%20Test%20Pro.%0A%0ANombre:%0AEmail:%0ATipo%20de%20acceso%20que%20quiero:%20completo%20/%20mantenimiento%20/%20com%C3%BAn%0ADuraci%C3%B3n:%201%20mes%20/%202%20meses%0A">
+            Globalspirit@gmail.com
+          </a>
+        </p>
+        <div class="access-mini">
+          <a href="mailto:Globalspirit@gmail.com?subject=Quiero%20acceso%20a%20OPE%20Test%20Pro&body=Hola,%20quiero%20informaci%C3%B3n%20para%20activar%20mi%20acceso%20a%20OPE%20Test%20Pro.%0A%0ANombre:%0AEmail:%0ATipo%20de%20acceso%20que%20quiero:%20completo%20/%20mantenimiento%20/%20com%C3%BAn%0ADuraci%C3%B3n:%201%20mes%20/%202%20meses%0A">
+            Solicitar acceso por email
+          </a>
+          <span class="footer-note">Responderemos con usuario, contraseña y duración del acceso.</span>
+        </div>
+      </div>
       <div class="grid">
         <div class="col-6">
           <label>Email</label>
@@ -387,7 +507,7 @@
         <button class="btn-secondary" id="demoBtn">Probar demo gratis</button>
         <a href="mailto:Globalspirit@gmail.com?subject=Acceso%20OPE%20Test%20Pro"
            style="color:#67e8f9;font-weight:900;text-decoration:none;">
-          Solicitar acceso completo
+          Solicitar acceso completo por email
         </a>
       </div>
       <div id="loginMsg" class="msg hidden"></div>
@@ -408,6 +528,13 @@
           Para reportar fallos, preguntas dudosas o errores:
           <a href="mailto:Globalspirit@gmail.com" style="color:#67e8f9;font-weight:900;">Globalspirit@gmail.com</a>
         </p>
+
+        <div class="mode-tabs">
+          <button class="mode-tab active" id="practiceModeBtn">Modo práctica</button>
+          <button class="mode-tab" id="examModeBtn">Modo examen</button>
+        </div>
+
+        <div id="practiceConfigBox">
         <div class="grid">
           <div class="col-6">
             <label>Banco de preguntas</label>
@@ -439,6 +566,46 @@
           <div class="col-4" id="rangeEndBox">
             <label>Hasta pregunta</label>
             <input id="rangeEnd" type="number" min="1" value="50" />
+          </div>
+        </div>
+        </div>
+
+        <div id="examConfigBox" class="exam-box hidden">
+          <h3>Crear examen personalizado</h3>
+          <p class="footer-note">
+            El examen no corrige al momento. Respondes todas las preguntas y al final ves nota, fallos y respuestas correctas.
+          </p>
+          <div class="grid">
+            <div class="col-4">
+              <label>Número total de preguntas</label>
+              <input id="examTotal" type="number" min="2" value="50" />
+            </div>
+            <div class="col-4">
+              <label>% Temario común</label>
+              <input id="examComunPct" type="number" min="0" max="100" value="50" />
+            </div>
+            <div class="col-4">
+              <label>% Mantenimiento</label>
+              <input id="examMantenimientoPct" type="number" min="0" max="100" value="50" />
+            </div>
+            <div class="col-4">
+              <label>Orden</label>
+              <select id="examOrderMode">
+                <option value="random">Aleatorio</option>
+                <option value="series">En serie</option>
+              </select>
+            </div>
+            <div class="col-4">
+              <label>Nota mínima para aprobar (%)</label>
+              <input id="examPassPct" type="number" min="1" max="100" value="60" />
+            </div>
+            <div class="col-4">
+              <label>Revisión al final</label>
+              <select id="examReviewMode">
+                <option value="wrong">Solo falladas</option>
+                <option value="all">Todas</option>
+              </select>
+            </div>
           </div>
         </div>
 
@@ -474,11 +641,12 @@
           <div class="stat"><strong id="scoreStat">0%</strong><span>Resultado</span></div>
         </div>
         <div id="finalMessage" class="msg good"></div>
+        <div id="examReviewBox" class="exam-review hidden"></div>
         <div class="row-actions">
           <button id="againRandomBtn">Repetir aleatorio</button>
           <button class="btn-secondary" id="againSeriesBtn">Repetir en serie</button>
           <button class="btn-danger" id="retryWrongsBtn">Batería de falladas del test</button>
-          <button class="btn-good hidden" id="buyAccessBtn">Solicitar acceso completo</button>
+          <button class="btn-good hidden" id="buyAccessBtn">Solicitar acceso completo por email</button>
           <button class="btn-secondary" id="newConfigBtn">Nueva configuración</button>
         </div>
       </section>
@@ -509,6 +677,10 @@
     let lastConfig = null;
     let celebrationNodes = [];
     let isDemoMode = false;
+    let appMode = "practice";
+    let isExamMode = false;
+    let examAnswers = [];
+    let examConfig = null;
 
     const DEMO_QUESTIONS = [
       {
@@ -737,11 +909,26 @@
       $("rangeEndBox").classList.toggle("hidden", mode !== "range");
     }
 
+    function setAppMode(mode) {
+      appMode = mode;
+      const isExam = mode === "exam";
+      $("practiceModeBtn").classList.toggle("active", !isExam);
+      $("examModeBtn").classList.toggle("active", isExam);
+      $("practiceConfigBox").classList.toggle("hidden", isExam);
+      $("examConfigBox").classList.toggle("hidden", !isExam);
+      $("loadWrongsBtn").classList.toggle("hidden", isExam);
+      $("startBtn").textContent = isExam ? "Empezar examen" : "Empezar test";
+      clearMsg("configMsg");
+    }
+
     function startDemo() {
       clearMsg("loginMsg");
       clearCelebrationEffects();
 
       isDemoMode = true;
+      isExamMode = false;
+      examAnswers = [];
+      examConfig = null;
       currentUser = null;
       currentAccess = null;
       availableBanks = [
@@ -769,9 +956,105 @@
       renderQuestion();
     }
 
+    async function startExam() {
+      clearMsg("configMsg");
+      clearCelebrationEffects();
+
+      try {
+        const total = parseInt($("examTotal").value || "0", 10);
+        const comunPct = parseInt($("examComunPct").value || "0", 10);
+        const mantPct = parseInt($("examMantenimientoPct").value || "0", 10);
+        const passPct = parseInt($("examPassPct").value || "60", 10);
+        const orderMode = $("examOrderMode").value;
+        const reviewMode = $("examReviewMode").value;
+
+        if (!Number.isFinite(total) || total < 2) {
+          setMsg("configMsg", "El examen debe tener al menos 2 preguntas.", "warn");
+          return;
+        }
+
+        if (comunPct + mantPct !== 100) {
+          setMsg("configMsg", "Los porcentajes deben sumar 100%.", "warn");
+          return;
+        }
+
+        const comunCount = Math.round(total * comunPct / 100);
+        const mantCount = total - comunCount;
+
+        if (comunCount < 0 || mantCount < 0 || (comunCount === 0 && mantCount === 0)) {
+          setMsg("configMsg", "Revisa el número de preguntas y porcentajes.", "warn");
+          return;
+        }
+
+        $("startBtn").disabled = true;
+        $("startBtn").textContent = "Creando examen...";
+
+        const [comunQuestions, mantQuestions] = await Promise.all([
+          comunCount > 0 ? loadQuestions("comun") : Promise.resolve([]),
+          mantCount > 0 ? loadQuestions("mantenimiento") : Promise.resolve([])
+        ]);
+
+        if (comunQuestions.length < comunCount) {
+          setMsg("configMsg", `No hay suficientes preguntas de común. Disponibles: ${comunQuestions.length}.`, "bad");
+          return;
+        }
+
+        if (mantQuestions.length < mantCount) {
+          setMsg("configMsg", `No hay suficientes preguntas de mantenimiento. Disponibles: ${mantQuestions.length}.`, "bad");
+          return;
+        }
+
+        let selected = [
+          ...shuffle(comunQuestions).slice(0, comunCount),
+          ...shuffle(mantQuestions).slice(0, mantCount)
+        ];
+
+        if (orderMode === "random") {
+          selected = shuffle(selected);
+        } else {
+          selected.sort((a, b) => {
+            if (a.bank_code === b.bank_code) return a.question_number - b.question_number;
+            return a.bank_code.localeCompare(b.bank_code);
+          });
+        }
+
+        isDemoMode = false;
+        isExamMode = true;
+        examAnswers = [];
+        examConfig = { total, comunPct, mantPct, comunCount, mantCount, passPct, orderMode, reviewMode };
+        lastConfig = { source: "exam", orderMode, selectionMode: "all" };
+
+        quizQuestions = selected;
+        wrongQuestions = [];
+        currentIndex = 0;
+        correctCount = 0;
+        answered = false;
+
+        $("againRandomBtn").classList.add("hidden");
+        $("againSeriesBtn").classList.add("hidden");
+        $("retryWrongsBtn").classList.add("hidden");
+        $("buyAccessBtn").classList.add("hidden");
+        $("newConfigBtn").textContent = "Nuevo examen";
+
+        hide($("configView"));
+        hide($("resultView"));
+        show($("quizView"));
+        renderQuestion();
+      } catch (err) {
+        console.error(err);
+        setMsg("configMsg", "Error creando el examen. Revisa la conexión con Supabase.", "bad");
+      } finally {
+        $("startBtn").disabled = false;
+        $("startBtn").textContent = appMode === "exam" ? "Empezar examen" : "Empezar test";
+      }
+    }
+
     async function startQuiz(configOverride = null) {
       clearMsg("configMsg");
       isDemoMode = false;
+      isExamMode = false;
+      examAnswers = [];
+      examConfig = null;
       $("againRandomBtn").classList.remove("hidden");
       $("againSeriesBtn").classList.remove("hidden");
       $("retryWrongsBtn").classList.remove("hidden");
@@ -854,7 +1137,9 @@
 
       $("quizCounter").textContent = `${num}/${total}`;
       $("progressFill").style.width = `${(currentIndex / total) * 100}%`;
-      $("questionMeta").textContent = `Pregunta ${q.question_number} · ${getBankName(q.bank_code)}`;
+      $("questionMeta").textContent = isExamMode
+        ? `Examen · ${getBankName(q.bank_code)} · Pregunta original ${q.question_number}`
+        : `Pregunta ${q.question_number} · ${getBankName(q.bank_code)}`;
       $("questionText").textContent = q.question;
       hide($("feedback"));
       hide($("nextBtn"));
@@ -887,16 +1172,31 @@
       if (isCorrect) correctCount++;
       else wrongQuestions.push(q);
 
+      examAnswers.push({
+        question: q,
+        selected: letter,
+        correct,
+        isCorrect
+      });
+
       const buttons = [...document.querySelectorAll(".answer")];
       buttons.forEach(btn => {
         const btnLetter = btn.querySelector(".letter").textContent;
-        if (btnLetter === correct) btn.classList.add("correct");
-        if (btnLetter === letter && !isCorrect) btn.classList.add("wrong");
+        if (!isExamMode) {
+          if (btnLetter === correct) btn.classList.add("correct");
+          if (btnLetter === letter && !isCorrect) btn.classList.add("wrong");
+        } else if (btnLetter === letter) {
+          btn.style.borderColor = "rgba(103,232,249,.75)";
+          btn.style.background = "rgba(6,182,212,.16)";
+        }
         btn.disabled = true;
       });
 
       const feedback = $("feedback");
-      if (isCorrect) {
+      if (isExamMode) {
+        feedback.textContent = "Respuesta guardada. La corrección saldrá al final del examen.";
+        feedback.style.color = "#bae6fd";
+      } else if (isCorrect) {
         feedback.textContent = "✅ Correcto. ¡Vamos!";
         feedback.style.color = "#86efac";
       } else {
@@ -905,11 +1205,13 @@
         feedback.style.color = "#fecaca";
       }
 
-      if (q.explanation) {
-        feedback.innerHTML += `<br><span style="color:#cbd5e1;font-weight:600;">${escapeHtml(q.explanation)}</span>`;
-      }
-      if (q.review_note) {
-        feedback.innerHTML += `<br><span style="color:#fcd34d;font-weight:800;">⚠️ ${escapeHtml(q.review_note)}</span>`;
+      if (!isExamMode) {
+        if (q.explanation) {
+          feedback.innerHTML += `<br><span style="color:#cbd5e1;font-weight:600;">${escapeHtml(q.explanation)}</span>`;
+        }
+        if (q.review_note) {
+          feedback.innerHTML += `<br><span style="color:#fcd34d;font-weight:800;">⚠️ ${escapeHtml(q.review_note)}</span>`;
+        }
       }
 
       show(feedback);
@@ -970,7 +1272,7 @@
       const total = quizQuestions.length;
       const bad = total - correctCount;
       const score = Math.round((correctCount / total) * 100);
-      const meta = getResultMeta(score, bad, total);
+      const meta = isExamMode ? getExamResultMeta(score, bad, total) : getResultMeta(score, bad, total);
 
       $("progressFill").style.width = "100%";
       $("totalStat").textContent = total;
@@ -990,12 +1292,17 @@
       $("retryWrongsBtn").textContent = bad ? `Batería de falladas del test (${bad})` : "Batería de falladas del test";
       $("loadWrongsBtn").textContent = "Batería de falladas acumuladas";
 
+      hide($("examReviewBox"));
+      $("examReviewBox").innerHTML = "";
+
       if (isDemoMode) {
         $("resultTitle").textContent = score >= 60 ? "Demo completada" : "Demo completada";
         finalMessage.className = "msg good";
         finalMessage.innerHTML = `
           Has terminado la demo gratuita de 5 preguntas.<br>
           <strong>La versión completa incluye 500 preguntas, modo aleatorio, rangos, falladas acumuladas y acceso privado.</strong><br>
+          Para activar el acceso completo, escríbenos a 
+          <a href="mailto:Globalspirit@gmail.com?subject=Quiero%20acceso%20a%20OPE%20Test%20Pro&body=Hola,%20quiero%20informaci%C3%B3n%20para%20activar%20mi%20acceso%20a%20OPE%20Test%20Pro.%0A%0ANombre:%0AEmail:%0ATipo%20de%20acceso%20que%20quiero:%20completo%20/%20mantenimiento%20/%20com%C3%BAn%0ADuraci%C3%B3n:%201%20mes%20/%202%20meses%0A" style="color:#67e8f9;font-weight:1000;">Globalspirit@gmail.com</a>.<br>
           <span style="color:#cbd5e1;font-weight:800;">Proba egina! Orain, nahi baduzu, sarbide osoa eskatu.</span>
         `;
         $("againRandomBtn").classList.add("hidden");
@@ -1003,6 +1310,21 @@
         $("retryWrongsBtn").classList.add("hidden");
         $("buyAccessBtn").classList.remove("hidden");
         $("newConfigBtn").textContent = "Entrar con cuenta";
+      } else if (isExamMode) {
+        $("resultTitle").textContent = score >= (examConfig?.passPct || 60) ? "Examen aprobado" : "Examen suspendido";
+        const comunTxt = examConfig ? `Común: ${examConfig.comunCount} preguntas · Mantenimiento: ${examConfig.mantCount} preguntas.` : "";
+        finalMessage.innerHTML = `
+          ${meta.message}<br>
+          <strong>${comunTxt}</strong><br>
+          <span style="color:#cbd5e1;font-weight:800;">Nota mínima configurada: ${examConfig?.passPct || 60}%.</span>
+        `;
+        renderExamReview();
+        $("againRandomBtn").classList.add("hidden");
+        $("againSeriesBtn").classList.add("hidden");
+        $("retryWrongsBtn").classList.toggle("hidden", bad === 0);
+        $("retryWrongsBtn").textContent = bad ? `Practicar falladas del examen (${bad})` : "Practicar falladas del examen";
+        $("buyAccessBtn").classList.add("hidden");
+        $("newConfigBtn").textContent = "Nuevo examen";
       } else {
         $("againRandomBtn").classList.remove("hidden");
         $("againSeriesBtn").classList.remove("hidden");
@@ -1015,6 +1337,87 @@
       if (score >= 85) launchConfetti("big");
       else if (score >= 60) launchConfetti("soft");
       else launchFiascoRain();
+    }
+
+    function getExamResultMeta(score, bad, total) {
+      const pass = examConfig?.passPct || 60;
+      if (score >= 90) {
+        return {
+          type: "good",
+          title: "Examen sobresaliente",
+          emoji: "🏆🥳",
+          headline: "Aprobado con autoridad.",
+          sub: "Has hecho un examen muy sólido. Esto ya parece preparación de verdad.",
+          message: "Examen brutal. Estás muy por encima del mínimo y con margen para rematar las dudas.",
+          eu: "Bikain! Azterketa oso ondo egin duzu."
+        };
+      }
+      if (score >= pass) {
+        return {
+          type: "good",
+          title: "Examen aprobado",
+          emoji: "✅😄",
+          headline: "Objetivo conseguido.",
+          sub: "Has superado la nota mínima. Ahora toca convertir las falladas en puntos.",
+          message: "Aprobado. Buen trabajo. Repasa las falladas del examen y sube otro escalón.",
+          eu: "Gaindituta! Segi horrela."
+        };
+      }
+      if (score >= Math.max(40, pass - 15)) {
+        return {
+          type: "warn",
+          title: "Te has quedado cerca",
+          emoji: "😬📚",
+          headline: "No está lejos.",
+          sub: "Hay base, pero faltan puntos clave. Las falladas te dicen exactamente dónde atacar.",
+          message: "Suspendido, pero con lectura útil: estás cerca. Haz la batería de falladas y repite examen.",
+          eu: "Gertu zaude. Ez etsi!"
+        };
+      }
+      return {
+        type: "bad",
+        title: "Examen duro",
+        emoji: "🤯🙈",
+        headline: "Hoy el examen ha venido con mala leche.",
+        sub: "Mejor descubrirlo ahora que el día de la OPE. Hay que volver a las falladas.",
+        message: "Resultado flojo, pero útil. Este examen te acaba de enseñar el mapa de estudio.",
+        eu: "Lasai, berriro saiatu eta hobetuko duzu."
+      };
+    }
+
+    function renderExamReview() {
+      if (!isExamMode) return;
+      const box = $("examReviewBox");
+      const reviewMode = examConfig?.reviewMode || "wrong";
+      const items = reviewMode === "all" ? examAnswers : examAnswers.filter(x => !x.isCorrect);
+
+      if (!items.length) {
+        box.innerHTML = `<div class="review-item correct-item"><strong>Sin falladas que revisar.</strong>Primeran! No hay errores en este examen.</div>`;
+        show(box);
+        return;
+      }
+
+      box.innerHTML = `
+        <h3>Revisión del examen ${reviewMode === "all" ? "(todas las preguntas)" : "(solo falladas)"}</h3>
+        ${items.map(item => {
+          const q = item.question;
+          const correctText = q[`option_${String(item.correct).toLowerCase()}`] || "";
+          const selectedText = q[`option_${String(item.selected).toLowerCase()}`] || "";
+          return `
+            <div class="review-item ${item.isCorrect ? "correct-item" : ""}">
+              <strong>${getBankName(q.bank_code)} · Pregunta ${q.question_number}</strong>
+              <div>${escapeHtml(q.question)}</div>
+              <div class="review-options">
+                <div class="${item.isCorrect ? "review-ok" : "review-bad"}">Tu respuesta: ${item.selected}) ${escapeHtml(selectedText)}</div>
+                <div class="review-ok">Correcta: ${item.correct}) ${escapeHtml(correctText)}</div>
+                ${q.explanation ? `<div>${escapeHtml(q.explanation)}</div>` : ""}
+                ${q.review_note ? `<div style="color:#fcd34d;font-weight:900;">⚠️ ${escapeHtml(q.review_note)}</div>` : ""}
+              </div>
+            </div>
+          `;
+        }).join("")}
+      `;
+      show(box);
     }
 
     function getResultMeta(score, bad, total) {
@@ -1137,12 +1540,17 @@
     $("loginBtn").addEventListener("click", login);
     $("demoBtn").addEventListener("click", startDemo);
     $("buyAccessBtn").addEventListener("click", () => {
-      window.location.href = "mailto:Globalspirit@gmail.com?subject=Acceso%20completo%20OPE%20Test%20Pro&body=Hola,%20quiero%20informaci%C3%B3n%20para%20activar%20el%20acceso%20completo%20a%20OPE%20Test%20Pro.";
+      window.location.href = "mailto:Globalspirit@gmail.com?subject=Quiero%20acceso%20a%20OPE%20Test%20Pro&body=Hola,%20quiero%20informaci%C3%B3n%20para%20activar%20mi%20acceso%20a%20OPE%20Test%20Pro.%0A%0ANombre:%0AEmail:%0ATipo%20de%20acceso%20que%20quiero:%20completo%20/%20mantenimiento%20/%20com%C3%BAn%0ADuraci%C3%B3n:%201%20mes%20/%202%20meses%0A";
     });
     $("password").addEventListener("keydown", (e) => { if (e.key === "Enter") login(); });
     $("logoutBtn").addEventListener("click", logout);
     $("selectionMode").addEventListener("change", updateConfigVisibility);
-    $("startBtn").addEventListener("click", () => startQuiz());
+    $("practiceModeBtn").addEventListener("click", () => setAppMode("practice"));
+    $("examModeBtn").addEventListener("click", () => setAppMode("exam"));
+    $("startBtn").addEventListener("click", () => {
+      if (appMode === "exam") startExam();
+      else startQuiz();
+    });
     $("nextBtn").addEventListener("click", nextQuestion);
     $("backConfigBtn").addEventListener("click", () => { hide($("quizView")); show($("configView")); });
     $("newConfigBtn").addEventListener("click", () => {
@@ -1157,6 +1565,7 @@
       }
       hide($("resultView"));
       show($("configView"));
+      if (isExamMode) setAppMode("exam");
     });
 
     $("againRandomBtn").addEventListener("click", () => {
@@ -1189,6 +1598,7 @@
     });
 
     updateConfigVisibility();
+    setAppMode("practice");
     init();
   </script>
 </body>
